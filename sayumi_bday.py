@@ -1,25 +1,20 @@
-import streamlit as st
-from datetime import datetime, date
-import math
-
-st.set_page_config(
-    page_title="Happy Birthday Sayumi 🎂",
-    page_icon="🎂",
-    layout="centered"
-)
-
-st.markdown("""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Sayumi 🎂</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-* { font-family: 'DM Sans', sans-serif; box-sizing: border-box; }
-
-.stApp {
+body {
+    font-family: 'DM Sans', sans-serif;
     background: linear-gradient(135deg, #fff0f5 0%, #fef9ff 40%, #f0f4ff 100%);
+    min-height: 100vh;
     overflow-x: hidden;
 }
 
-/* ---- CONFETTI CANVAS ---- */
 #confetti-canvas {
     position: fixed;
     top: 0; left: 0;
@@ -28,7 +23,6 @@ st.markdown("""
     z-index: 9999;
 }
 
-/* ---- FLOATING HEARTS BG ---- */
 .hearts-bg {
     position: fixed;
     top: 0; left: 0;
@@ -40,28 +34,28 @@ st.markdown("""
 
 .heart-float {
     position: absolute;
-    font-size: 1.2rem;
     animation: floatUp linear infinite;
     opacity: 0;
 }
 
 @keyframes floatUp {
-    0% { transform: translateY(100vh) rotate(0deg); opacity: 0.6; }
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0.7; }
     100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
 }
 
-/* ---- HERO ---- */
-.hero {
-    text-align: center;
-    padding: 3rem 1rem 1rem;
+.container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2rem 1.2rem 4rem;
     position: relative;
     z-index: 1;
-    animation: fadeSlideDown 1s ease both;
 }
 
-@keyframes fadeSlideDown {
-    from { opacity: 0; transform: translateY(-30px); }
-    to { opacity: 1; transform: translateY(0); }
+/* HERO */
+.hero {
+    text-align: center;
+    padding: 3rem 1rem 1.5rem;
+    animation: fadeSlideDown 1s ease both;
 }
 
 .hero-tag {
@@ -70,21 +64,18 @@ st.markdown("""
     text-transform: uppercase;
     color: #c084a0;
     margin-bottom: 1rem;
-    font-weight: 500;
-    animation: fadeIn 1.5s ease both;
 }
 
 .hero-name {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(3rem, 10vw, 6rem);
+    font-size: clamp(3.5rem, 12vw, 6.5rem);
     font-weight: 900;
-    background: linear-gradient(135deg, #e879a0, #a78bfa, #60a5fa);
-    background-size: 200% 200%;
+    background: linear-gradient(135deg, #e879a0, #a78bfa, #60a5fa, #e879a0);
+    background-size: 300% 300%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     line-height: 1.1;
-    margin-bottom: 0.5rem;
     animation: gradientShift 4s ease infinite, fadeSlideDown 1s ease both;
 }
 
@@ -94,66 +85,64 @@ st.markdown("""
 }
 
 .hero-sub {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     color: #9d6b8a;
     font-weight: 300;
-    animation: fadeIn 2s ease both;
+    margin-top: 0.5rem;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+/* COUNTDOWN */
+.section-label {
+    text-align: center;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c084a0;
+    margin: 2rem 0 0.8rem;
 }
 
-/* ---- COUNTDOWN ---- */
 .countdown-wrap {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin: 2rem 0;
+    gap: 12px;
     flex-wrap: wrap;
     animation: fadeSlideUp 1.2s ease both;
-}
-
-@keyframes fadeSlideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 
 .cd-box {
     background: white;
     border-radius: 20px;
-    padding: 1.2rem 1.5rem;
-    min-width: 80px;
+    padding: 1.2rem 1.4rem;
+    min-width: 75px;
     text-align: center;
-    box-shadow: 0 4px 24px rgba(232, 121, 160, 0.15);
-    border: 1px solid rgba(232, 121, 160, 0.2);
+    box-shadow: 0 4px 24px rgba(232,121,160,0.15);
+    border: 1px solid rgba(232,121,160,0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: default;
 }
 
 .cd-box:hover {
-    transform: translateY(-6px) scale(1.05);
-    box-shadow: 0 12px 40px rgba(232, 121, 160, 0.25);
+    transform: translateY(-6px) scale(1.06);
+    box-shadow: 0 12px 40px rgba(232,121,160,0.28);
 }
 
 .cd-num {
     font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
+    font-size: 2.4rem;
     font-weight: 700;
     color: #e879a0;
     line-height: 1;
     display: block;
-    animation: pulse 2s ease-in-out infinite;
+    transition: transform 0.15s ease;
 }
 
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.04); }
+.cd-num.bump {
+    transform: scale(1.2);
+    color: #a78bfa;
 }
 
 .cd-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: #c084a0;
@@ -161,12 +150,12 @@ st.markdown("""
     display: block;
 }
 
-/* ---- EMOJI ROW ---- */
+/* EMOJI ROW */
 .emoji-row {
     text-align: center;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     letter-spacing: 8px;
-    margin: 1.5rem 0;
+    margin: 1.8rem 0;
     animation: float 3s ease-in-out infinite;
 }
 
@@ -175,13 +164,174 @@ st.markdown("""
     50% { transform: translateY(-8px); }
 }
 
-/* ---- PHOTO GRID ---- */
+/* BUTTONS */
+.btn-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+}
+
+.btn {
+    border: none;
+    border-radius: 50px;
+    padding: 0.75rem 1.6rem;
+    font-size: 0.82rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    letter-spacing: 0.3px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #e879a0, #a78bfa);
+    color: white;
+    box-shadow: 0 4px 20px rgba(232,121,160,0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 8px 30px rgba(232,121,160,0.4);
+}
+
+.btn-primary:active { transform: scale(0.96); }
+
+.btn-outline {
+    background: white;
+    color: #e879a0;
+    border: 2px solid #e879a0;
+}
+
+.btn-outline:hover {
+    background: #fff0f5;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 20px rgba(232,121,160,0.15);
+}
+
+.btn-dev {
+    background: #1e1e2e;
+    color: #a78bfa;
+    border: 1px dashed #a78bfa55;
+    font-size: 0.72rem;
+    padding: 0.6rem 1.2rem;
+}
+
+.btn-dev:hover {
+    background: #2a2440;
+    transform: translateY(-2px);
+}
+
+/* ROAST CARD */
+.fact-card {
+    background: linear-gradient(135deg, #fdf2f8, #faf5ff);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    border: 1px solid rgba(232,121,160,0.15);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.fact-card.switching {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.fact-emoji { font-size: 2.2rem; }
+.fact-text { color: #6b4f6b; font-size: 0.92rem; line-height: 1.7; }
+.fact-counter { color: #c084a0; font-size: 0.65rem; letter-spacing: 1px; margin-top: 4px; }
+
+/* GAME */
+.game-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(232,121,160,0.12);
+    border: 1px solid rgba(232,121,160,0.18);
+    margin: 1rem 0;
+    min-height: 160px;
+    position: relative;
+    overflow: visible;
+}
+
+.game-question {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: #6b4f6b;
+    margin-bottom: 0.4rem;
+}
+
+.game-sub {
+    font-size: 0.75rem;
+    color: #c084a0;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+}
+
+.game-btn-wrap {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    min-height: 48px;
+}
+
+.game-yes {
+    flex-shrink: 0;
+}
+
+.btn-no {
+    background: white;
+    color: #9d6b8a;
+    border: 2px solid #e0b4c8;
+    border-radius: 50px;
+    padding: 0.75rem 1.6rem;
+    font-size: 0.82rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    position: absolute;
+    transition: font-size 0.2s ease;
+    white-space: nowrap;
+}
+
+.game-result {
+    font-size: 1.1rem;
+    color: #e879a0;
+    font-family: 'Playfair Display', serif;
+    margin-top: 1rem;
+    animation: fadeSlideUp 0.5s ease both;
+}
+
+.photo-img {
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 16px;
+    width: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.photo-img:hover {
+    transform: scale(1.06) rotate(2deg);
+    box-shadow: 0 8px 30px rgba(232,121,160,0.2);
+}
+
+/* PHOTO GRID */
 .photo-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
-    margin: 2rem 0;
-    animation: fadeSlideUp 1.5s ease both;
+    margin: 1rem 0;
 }
 
 .photo-placeholder {
@@ -192,32 +342,43 @@ st.markdown("""
     align-items: center;
     justify-content: center;
     font-size: 2rem;
-    border: 2px dashed rgba(232, 121, 160, 0.3);
+    border: 2px dashed rgba(232,121,160,0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
 }
 
 .photo-placeholder:hover {
-    transform: scale(1.05) rotate(2deg);
-    box-shadow: 0 8px 30px rgba(232, 121, 160, 0.2);
+    transform: scale(1.06) rotate(2deg);
+    box-shadow: 0 8px 30px rgba(232,121,160,0.2);
 }
 
-/* ---- MESSAGE CARD ---- */
+/* MESSAGE */
 .msg-card {
     background: white;
     border-radius: 24px;
     padding: 2rem;
-    margin: 2rem 0;
-    box-shadow: 0 8px 40px rgba(167, 139, 250, 0.12);
-    border: 1px solid rgba(167, 139, 250, 0.15);
-    position: relative;
-    z-index: 1;
-    animation: fadeSlideUp 1.8s ease both;
-    transition: box-shadow 0.3s ease;
+    margin: 1.5rem 0;
+    box-shadow: 0 8px 40px rgba(167,139,250,0.12);
+    border: 1px solid rgba(167,139,250,0.18);
+    transition: box-shadow 0.3s ease, max-height 0.6s ease, opacity 0.4s ease;
+    overflow: hidden;
 }
 
 .msg-card:hover {
-    box-shadow: 0 16px 60px rgba(167, 139, 250, 0.2);
+    box-shadow: 0 16px 60px rgba(167,139,250,0.22);
+}
+
+.msg-card.hidden {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+
+.msg-card.visible {
+    max-height: 2000px;
+    opacity: 1;
 }
 
 .msg-quote {
@@ -229,8 +390,8 @@ st.markdown("""
 }
 
 .msg-text {
-    font-size: 0.95rem;
-    line-height: 1.9;
+    font-size: 0.93rem;
+    line-height: 1.95;
     color: #6b4f6b;
     font-weight: 300;
 }
@@ -243,92 +404,23 @@ st.markdown("""
     font-size: 1rem;
 }
 
-/* ---- SPECIAL BUTTONS ---- */
-.btn-row {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin: 2rem 0;
-    position: relative;
-    z-index: 1;
-}
-
-.special-btn {
-    background: linear-gradient(135deg, #e879a0, #a78bfa);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 0.8rem 1.8rem;
-    font-size: 0.85rem;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 20px rgba(232, 121, 160, 0.3);
-    letter-spacing: 0.5px;
-}
-
-.special-btn:hover {
-    transform: translateY(-3px) scale(1.04);
-    box-shadow: 0 8px 30px rgba(232, 121, 160, 0.4);
-}
-
-.special-btn:active {
-    transform: scale(0.97);
-}
-
-.special-btn.outline {
-    background: white;
-    color: #e879a0;
-    border: 2px solid #e879a0;
-    box-shadow: none;
-}
-
-.special-btn.outline:hover {
-    background: #fff0f5;
-    box-shadow: 0 4px 20px rgba(232, 121, 160, 0.15);
-}
-
-/* ---- FUN FACTS CARD ---- */
-.fact-card {
-    background: linear-gradient(135deg, #fdf2f8, #faf5ff);
-    border-radius: 20px;
-    padding: 1.5rem 2rem;
-    margin: 1rem 0;
-    text-align: center;
-    border: 1px solid rgba(232, 121, 160, 0.15);
-    animation: fadeIn 0.5s ease both;
-    transition: transform 0.3s ease;
-    position: relative;
-    z-index: 1;
-}
-
-.fact-card:hover { transform: scale(1.01); }
-
-.fact-emoji { font-size: 2.5rem; margin-bottom: 0.5rem; }
-.fact-text { color: #6b4f6b; font-size: 0.95rem; line-height: 1.7; }
-
-/* ---- BIRTHDAY BANNER ---- */
+/* BIRTHDAY BANNER */
 .bday-banner {
     text-align: center;
     padding: 3rem 2rem;
     background: linear-gradient(135deg, #fce7f0, #ede9fe, #dbeafe);
     border-radius: 24px;
-    margin: 2rem 0;
     animation: shimmer 3s ease-in-out infinite;
-    position: relative;
-    z-index: 1;
 }
 
 @keyframes shimmer {
-    0%, 100% { box-shadow: 0 0 30px rgba(232, 121, 160, 0.2); }
-    50% { box-shadow: 0 0 60px rgba(167, 139, 250, 0.4); }
+    0%, 100% { box-shadow: 0 0 30px rgba(232,121,160,0.2); }
+    50% { box-shadow: 0 0 60px rgba(167,139,250,0.4); }
 }
 
 .bday-title {
     font-family: 'Playfair Display', serif;
-    font-size: 3rem;
+    font-size: 2.8rem;
     background: linear-gradient(135deg, #e879a0, #a78bfa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -336,265 +428,448 @@ st.markdown("""
     animation: float 2s ease-in-out infinite;
 }
 
-/* ---- FOOTER ---- */
+/* FOOTER */
 .footer {
     text-align: center;
-    padding: 2rem 0 1rem;
+    padding: 2.5rem 0 1rem;
     color: #c084a0;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     letter-spacing: 1px;
-    position: relative;
-    z-index: 1;
 }
 
-/* ---- SPARKLE ---- */
-.sparkle {
+/* DEV BADGE */
+.dev-badge {
     display: inline-block;
-    animation: spin 2s linear infinite;
+    background: #1e1e2e;
+    color: #a78bfa;
+    font-size: 0.6rem;
+    font-family: monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+    border: 1px solid #a78bfa44;
 }
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+@keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-#MainMenu, footer, header { visibility: hidden; }
-.block-container { padding-top: 0 !important; max-width: 680px; }
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 </style>
+</head>
+<body>
 
-<!-- Floating hearts background -->
+<canvas id="confetti-canvas"></canvas>
 <div class="hearts-bg" id="hearts-bg"></div>
 
-<!-- Confetti canvas -->
-<canvas id="confetti-canvas"></canvas>
+<div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="hero-tag">✦ a little something for you ✦</div>
+        <div class="hero-name">Sayumi</div>
+        <div class="hero-sub">turning 14 · august 6th ✨</div>
+    </div>
+
+    <!-- COUNTDOWN / BIRTHDAY -->
+    <div id="countdown-section">
+        <div class="section-label">countdown to the big day 🎀</div>
+        <div class="countdown-wrap">
+            <div class="cd-box"><span class="cd-num" id="cd-days">--</span><span class="cd-label">Days</span></div>
+            <div class="cd-box"><span class="cd-num" id="cd-hours">--</span><span class="cd-label">Hours</span></div>
+            <div class="cd-box"><span class="cd-num" id="cd-mins">--</span><span class="cd-label">Minutes</span></div>
+            <div class="cd-box"><span class="cd-num" id="cd-secs">--</span><span class="cd-label">Seconds</span></div>
+        </div>
+    </div>
+
+    <div id="bday-section" style="display:none;">
+        <div class="bday-banner">
+            <div class="bday-title">🎂 IT'S YOUR DAY!! 🎂</div>
+            <p style="color:#9d6b8a; margin-top:1rem;">Happy Birthday Sayumi 💗 hope it's the most amazing one yet</p>
+        </div>
+    </div>
+
+    <!-- EMOJI ROW -->
+    <div class="emoji-row">🎂 💗 🎉 🫶 🥹</div>
+
+    <!-- BUTTONS -->
+    <div class="btn-row">
+        <button class="btn btn-primary" onclick="launchConfetti()">🎉 Confetti!</button>
+        <button class="btn btn-outline" onclick="toggleMessage()">💌 Read Message</button>
+        <button class="btn btn-primary" onclick="heartShower()">💗 Heart Shower</button>
+    </div>
+    <div class="btn-row">
+        <button class="btn btn-dev" onclick="devMode()">⚙️ dev: reset to 10s <span class="dev-badge">DEV</span></button>
+    </div>
+
+    <!-- ROAST CAROUSEL -->
+    <div class="section-label">reasons ur actually the worst 😭</div>
+    <div class="fact-card" id="fact-card">
+        <div class="fact-emoji" id="fact-emoji">😭</div>
+        <div class="fact-text" id="fact-text">threatens to slap me literally every other day and has never once apologized</div>
+        <div class="fact-counter" id="fact-counter">1 / 5</div>
+    </div>
+    <div class="btn-row" style="margin-top:10px;">
+        <button class="btn btn-outline" onclick="nextRoast()">next roast 😂</button>
+    </div>
+
+    <!-- PHOTO GRID -->
+    <div class="section-label">ur camera roll era 📸</div>
+    <div class="photo-grid" id="photo-grid">
+        <div class="photo-placeholder">📸</div>
+        <div class="photo-placeholder">🌸</div>
+        <div class="photo-placeholder">📸</div>
+        <div class="photo-placeholder">🌺</div>
+        <div class="photo-placeholder">🌷</div>
+        <div class="photo-placeholder">💗</div>
+    </div>
+
+    <!-- FLEEING NO BUTTON GAME -->
+    <div class="section-label">one important question 🎀</div>
+    <div class="game-card" id="game-card">
+        <div class="game-question" id="game-question">are you the best bsf in the world? 🥺</div>
+        <div class="game-sub" id="game-sub">choose wisely</div>
+        <div class="game-btn-wrap" id="game-btn-wrap">
+            <button class="btn btn-primary game-yes" onclick="yesClicked()">yes 💗</button>
+            <button class="btn btn-no" id="no-btn" onmouseover="runAway()" ontouchstart="runAway()">no</button>
+        </div>
+        <div class="game-result" id="game-result" style="display:none"></div>
+    </div>
+
+    <!-- MESSAGE -->
+    <div class="msg-card hidden" id="msg-card">
+        <div class="msg-quote">"</div>
+        <div class="msg-text">
+            happy birthday sayumi 💗🎂 ur officially old now and i hope ur enjoying the slow descent into ancient history lmao. i still remember cambridge 6, the quiet nerd in the corner who wouldn't say a word to anyone, BUT NOT NOW OKK?? now she threatens to slap me on a daily basis and somehow tht's become one of my favorite things about her 😭<br><br>
+            and listen ik i've been a bit distant lately and i already apologized for tht, but i need u to know tht has never once changed how much u mean to me. u wrote me 4 whole pages once for jz no reason and i think about tht more than u know, cuz tht's jz the kind of person u are. u give so much without even thinking about it and i genuinely don't say this enough but i'm so grateful to have u in my life. like actually grateful, not jz saying it. u've been there through sm and i don't take tht lightly 🥹<br><br>
+            the kind of bsf tht checks on u, roasts u, threatens to physically assault u, and somehow still makes u feel like the luckiest person in the room 😂🫶<br><br>
+            have the best birthday okay. wear black obviously. eat way too much cake. and for the love of everything please jz talk to geenuka already ur going to give yourself a heart attack every time i mention his name 😭💙<br><br>
+            cheers to u being a bit older, more unbothered and still living in the same era as me 🎂🫶🥹
+        </div>
+        <div class="msg-sign">— ur bsf, always 💗</div>
+    </div>
+
+    <div class="footer">made with 💗 · for sayumi · august 6th 2026</div>
+</div>
 
 <script>
-// ---- FLOATING HEARTS ----
+// ---- FLOATING HEARTS BG ----
 const heartsBg = document.getElementById('hearts-bg');
 const heartEmojis = ['💗','🌸','💜','✨','🎀','💕','🌷','💫'];
-for (let i = 0; i < 18; i++) {
+for (let i = 0; i < 16; i++) {
+    spawnHeart(heartsBg, true);
+}
+
+function spawnHeart(container, initial) {
     const h = document.createElement('div');
     h.className = 'heart-float';
     h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
     h.style.left = Math.random() * 100 + 'vw';
-    h.style.animationDuration = (6 + Math.random() * 10) + 's';
-    h.style.animationDelay = (Math.random() * 8) + 's';
+    const dur = 7 + Math.random() * 10;
+    h.style.animationDuration = dur + 's';
+    h.style.animationDelay = (initial ? Math.random() * 8 : 0) + 's';
     h.style.fontSize = (0.8 + Math.random() * 1.2) + 'rem';
-    heartsBg.appendChild(h);
+    container.appendChild(h);
+    setTimeout(() => { h.remove(); spawnHeart(container, false); }, (dur + (initial ? Math.random()*8 : 0)) * 1000);
 }
 
 // ---- CONFETTI ----
 const canvas = document.getElementById('confetti-canvas');
 const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
-let confettiPieces = [];
-let confettiActive = false;
+let pieces = [];
+let animId = null;
+let confettiFadeTimer = null;
 
-function createConfetti() {
-    confettiPieces = [];
-    const colors = ['#e879a0','#a78bfa','#60a5fa','#fbbf24','#34d399','#f472b6'];
-    for (let i = 0; i < 150; i++) {
-        confettiPieces.push({
+function launchConfetti() {
+    // Clear any existing fade timer
+    if (confettiFadeTimer) { clearTimeout(confettiFadeTimer); confettiFadeTimer = null; }
+
+    const colors = ['#e879a0','#a78bfa','#60a5fa','#fbbf24','#34d399','#f472b6','#fb923c'];
+    for (let i = 0; i < 180; i++) {
+        pieces.push({
             x: Math.random() * canvas.width,
-            y: -10,
+            y: -20 - Math.random() * 100,
             w: 6 + Math.random() * 8,
             h: 10 + Math.random() * 8,
             color: colors[Math.floor(Math.random() * colors.length)],
             speed: 2 + Math.random() * 4,
             drift: (Math.random() - 0.5) * 2,
-            spin: Math.random() * 0.2,
-            angle: 0,
-            opacity: 0.8 + Math.random() * 0.2
+            spin: (Math.random() - 0.5) * 0.15,
+            angle: Math.random() * Math.PI * 2,
+            opacity: 0.85,
+            fading: false
         });
     }
-    confettiActive = true;
-    animateConfetti();
+    if (!animId) animateConfetti();
+
+    // Start fading after 4 seconds
+    confettiFadeTimer = setTimeout(() => {
+        pieces.forEach(p => p.fading = true);
+    }, 4000);
 }
 
 function animateConfetti() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let alive = false;
-    confettiPieces.forEach(p => {
-        if (p.y < canvas.height + 20) {
-            alive = true;
-            p.y += p.speed;
-            p.x += p.drift;
-            p.angle += p.spin;
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.angle);
-            ctx.globalAlpha = p.opacity;
-            ctx.fillStyle = p.color;
-            ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-            ctx.restore();
-        }
+    pieces = pieces.filter(p => p.opacity > 0.01 && p.y < canvas.height + 30);
+    pieces.forEach(p => {
+        p.y += p.speed;
+        p.x += p.drift;
+        p.angle += p.spin;
+        if (p.fading) p.opacity = Math.max(0, p.opacity - 0.025);
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        ctx.restore();
     });
-    if (alive) requestAnimationFrame(animateConfetti);
-    else { ctx.clearRect(0, 0, canvas.width, canvas.height); confettiActive = false; }
+    if (pieces.length > 0) {
+        animId = requestAnimationFrame(animateConfetti);
+    } else {
+        animId = null;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 }
 
-window.launchConfetti = createConfetti;
-window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-</script>
-""", unsafe_allow_html=True)
+// ---- HEART SHOWER ----
+function heartShower() {
+    for (let i = 0; i < 25; i++) {
+        setTimeout(() => spawnHeart(heartsBg, false), i * 80);
+    }
+}
 
-# --- COUNTDOWN LOGIC ---
-today = date.today()
-birthday_2026 = date(2026, 8, 6)
-if today > birthday_2026:
-    birthday_2026 = date(2027, 8, 6)
-
-delta = birthday_2026 - today
-days_left = delta.days
-weeks_left = days_left // 7
-days_remaining = days_left % 7
-hours_left = days_left * 24
-is_birthday = (today.month == 8 and today.day == 6)
-
-# --- HERO ---
-st.markdown("""
-<div class="hero">
-    <div class="hero-tag">✦ a little something for you ✦</div>
-    <div class="hero-name">Sayumi</div>
-    <div class="hero-sub">turning 14 · august 6th <span class="sparkle">✨</span></div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- COUNTDOWN or BIRTHDAY ---
-if is_birthday:
-    st.markdown("""
-    <div class="bday-banner">
-        <div class="bday-title">🎂 IT'S YOUR DAY!! 🎂</div>
-        <p style="color:#9d6b8a; margin-top:1rem; font-size:1rem;">Happy Birthday Sayumi 💗 hope it's the most amazing one yet</p>
-    </div>
-    """, unsafe_allow_html=True)
-else:
-    st.markdown(f"""
-    <div style="text-align:center; margin-bottom: 0.5rem; position:relative; z-index:1;">
-        <span style="font-size:0.7rem; letter-spacing:3px; text-transform:uppercase; color:#c084a0;">countdown to the big day 🎀</span>
-    </div>
-    <div class="countdown-wrap">
-        <div class="cd-box">
-            <span class="cd-num">{days_left}</span>
-            <span class="cd-label">Days</span>
-        </div>
-        <div class="cd-box">
-            <span class="cd-num">{weeks_left}</span>
-            <span class="cd-label">Weeks</span>
-        </div>
-        <div class="cd-box">
-            <span class="cd-num">{days_remaining}</span>
-            <span class="cd-label">Extra days</span>
-        </div>
-        <div class="cd-box">
-            <span class="cd-num">{hours_left:,}</span>
-            <span class="cd-label">Hours</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-# --- EMOJI ROW ---
-st.markdown('<div class="emoji-row">🎂 💗 🎉 🫶 🥹</div>', unsafe_allow_html=True)
-
-# --- BUTTONS ---
-st.markdown("""
-<div class="btn-row">
-    <button class="special-btn" onclick="launchConfetti()">🎉 Launch Confetti!</button>
-    <button class="special-btn outline" onclick="toggleMessage()">💌 Read Message</button>
-    <button class="special-btn" onclick="makeItRain()">💗 Heart Shower</button>
-</div>
-
-<script>
+// ---- TOGGLE MESSAGE ----
+let msgVisible = false;
 function toggleMessage() {
-    const msg = document.getElementById('msg-card-reveal');
-    if (msg) {
-        msg.style.display = msg.style.display === 'none' ? 'block' : 'none';
+    const card = document.getElementById('msg-card');
+    msgVisible = !msgVisible;
+    if (msgVisible) {
+        card.classList.remove('hidden');
+        card.classList.add('visible');
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        card.classList.remove('visible');
+        card.classList.add('hidden');
     }
 }
 
-function makeItRain() {
-    const heartsBg = document.getElementById('hearts-bg');
-    for (let i = 0; i < 20; i++) {
-        setTimeout(() => {
-            const h = document.createElement('div');
-            h.className = 'heart-float';
-            h.textContent = ['💗','💜','💕','🌸','✨'][Math.floor(Math.random()*5)];
-            h.style.left = Math.random() * 100 + 'vw';
-            h.style.animationDuration = (2 + Math.random() * 3) + 's';
-            h.style.animationDelay = '0s';
-            h.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
-            heartsBg.appendChild(h);
-            setTimeout(() => h.remove(), 5000);
-        }, i * 100);
+// ---- ROAST CAROUSEL ----
+const roasts = [
+    { emoji: '😭', text: 'threatens to slap me literally every other day and has never once apologized' },
+    { emoji: '📝', text: 'wrote 4 whole pages for absolutely no reason and thinks tht\'s normal behaviour' },
+    { emoji: '💀', text: 'crashes out completely every single time geenuka gets mentioned. every. single. time.' },
+    { emoji: '🖤', text: 'wears black like it\'s a full personality and honestly? fair enough. it works.' },
+    { emoji: '🧠', text: 'was the quietest nerd in cambridge 6 and now genuinely won\'t stop talking or threatening me' },
+];
+let roastIdx = 0;
+
+function nextRoast() {
+    const card = document.getElementById('fact-card');
+    card.classList.add('switching');
+    setTimeout(() => {
+        roastIdx = (roastIdx + 1) % roasts.length;
+        document.getElementById('fact-emoji').textContent = roasts[roastIdx].emoji;
+        document.getElementById('fact-text').textContent = roasts[roastIdx].text;
+        document.getElementById('fact-counter').textContent = `${roastIdx + 1} / ${roasts.length}`;
+        card.classList.remove('switching');
+    }, 250);
+}
+
+// ---- COUNTDOWN ----
+let devOffset = 0;
+let devActive = false;
+
+function devMode() {
+    const now = new Date();
+    const bday = getNextBirthday();
+    const normalDiff = Math.floor((bday - now) / 1000);
+    devOffset = normalDiff - 10;
+    devActive = true;
+    bdayTriggered = false;
+    updateCountdown();
+}
+
+function getNextBirthday() {
+    const now = new Date();
+    let bday = new Date(now.getFullYear(), 7, 6, 0, 0, 0); // Aug 6
+    if (now >= bday) bday.setFullYear(bday.getFullYear() + 1);
+    return bday;
+}
+
+let bdayTriggered = false;
+
+function updateCountdown() {
+    const now = new Date();
+    const bday = getNextBirthday();
+    let diff = Math.floor((bday - now) / 1000) - (devActive ? devOffset : 0);
+
+    if (diff <= 0) {
+        document.getElementById('countdown-section').style.display = 'none';
+        document.getElementById('bday-section').style.display = 'block';
+        if (!bdayTriggered) {
+            bdayTriggered = true;
+            launchConfetti();
+            setTimeout(() => launchConfetti(), 600);
+        }
+        return;
     }
+
+    bdayTriggered = false;
+
+    document.getElementById('countdown-section').style.display = 'block';
+    document.getElementById('bday-section').style.display = 'none';
+
+    const days = Math.floor(diff / 86400);
+    const hours = Math.floor((diff % 86400) / 3600);
+    const mins = Math.floor((diff % 3600) / 60);
+    const secs = diff % 60;
+
+    setNum('cd-days', days);
+    setNum('cd-hours', hours);
+    setNum('cd-mins', mins);
+    setNum('cd-secs', secs);
+}
+
+let prevVals = {};
+function setNum(id, val) {
+    const el = document.getElementById(id);
+    const str = String(val).padStart(2, '0');
+    if (prevVals[id] !== str) {
+        el.classList.add('bump');
+        setTimeout(() => el.classList.remove('bump'), 150);
+        prevVals[id] = str;
+    }
+    el.textContent = str;
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+// ---- PHOTO LOADER ----
+const photoFiles = ['photo1.jpg','photo2.jpg','photo3.jpg','photo4.jpg'];
+const grid = document.getElementById('photo-grid');
+grid.innerHTML = '';
+photoFiles.forEach(f => {
+    const img = document.createElement('img');
+    img.src = f;
+    img.className = 'photo-img';
+    img.alt = 'selfie 📸';
+    const placeholder = document.createElement('div');
+    placeholder.className = 'photo-placeholder';
+    placeholder.textContent = '📸';
+    placeholder.style.display = 'none';
+    img.onerror = () => { img.style.display = 'none'; placeholder.style.display = 'flex'; };
+    grid.appendChild(img);
+    grid.appendChild(placeholder);
+});
+// fill remaining slots
+const loaded = photoFiles.length;
+const extras = ['🌸','💗'];
+extras.forEach(e => {
+    const d = document.createElement('div');
+    d.className = 'photo-placeholder';
+    d.textContent = e;
+    grid.appendChild(d);
+});
+
+// ---- FLEEING NO BUTTON GAME ----
+const questions = [
+    { q: 'are you the best bsf in the world? 🥺', win: 'obviously YES!! 💗 correct answer lol' },
+    { q: 'do u think ur funny? 😭', win: 'she said yes 😭💗 ur actually so funny ugh' },
+    { q: 'is geenuka kinda cute tho? 👀', win: 'SHE SAID YES 😭💗 go talk to him!!' },
+    { q: 'do i deserve a slap rn? 🫣', win: 'she said yes 💀 fair enough honestly' },
+    { q: 'are u having the best bday ever? 🎂', win: 'she said yes!! 💗 good. as it should be 🎂' },
+];
+let qIdx = 0;
+let noEscapes = 0;
+let gameWon = false;
+
+const noBtn = document.getElementById('no-btn');
+const gameCard = document.getElementById('game-card');
+
+function runAway() {
+    if (gameWon) return;
+    noEscapes++;
+
+    // shrink no button text over time
+    const size = Math.max(0.5, 0.82 - noEscapes * 0.04);
+    noBtn.style.fontSize = size + 'rem';
+    noBtn.style.padding = `${Math.max(0.3, 0.75 - noEscapes*0.04)}rem ${Math.max(0.6, 1.6 - noEscapes*0.08)}rem`;
+
+    // find a random position within the game card that doesn't overlap yes button
+    const cardRect = gameCard.getBoundingClientRect();
+    const noBtnRect = noBtn.getBoundingClientRect();
+    const maxX = cardRect.width - noBtnRect.width - 20;
+    const maxY = cardRect.height - noBtnRect.height - 10;
+
+    let newX, newY, attempts = 0;
+    do {
+        newX = 10 + Math.random() * Math.max(10, maxX);
+        newY = 80 + Math.random() * Math.max(10, maxY - 80);
+        attempts++;
+    } while (attempts < 20);
+
+    noBtn.style.position = 'absolute';
+    noBtn.style.left = newX + 'px';
+    noBtn.style.top = newY + 'px';
+    noBtn.style.transition = 'left 0.15s ease, top 0.15s ease, font-size 0.2s ease';
+
+    if (noEscapes >= 5) {
+        noBtn.textContent = 'noooo 😭';
+    } else if (noEscapes >= 3) {
+        noBtn.textContent = 'no... 🫣';
+    }
+}
+
+function yesClicked() {
+    if (gameWon) return;
+    const result = document.getElementById('game-result');
+    const wrap = document.getElementById('game-btn-wrap');
+    const sub = document.getElementById('game-sub');
+
+    gameWon = true;
+    wrap.style.display = 'none';
+    sub.style.display = 'none';
+    result.style.display = 'block';
+    result.textContent = questions[qIdx].win;
+    heartShower();
+
+    // after 2.5s go to next question
+    setTimeout(() => {
+        qIdx = (qIdx + 1) % questions.length;
+        gameWon = false;
+        noEscapes = 0;
+        noBtn.textContent = 'no';
+        noBtn.style.fontSize = '0.82rem';
+        noBtn.style.padding = '0.75rem 1.6rem';
+        noBtn.style.position = 'absolute';
+        noBtn.style.left = '';
+        noBtn.style.top = '';
+        noBtn.style.transition = 'none';
+        document.getElementById('game-question').textContent = questions[qIdx].q;
+        sub.style.display = 'block';
+        sub.textContent = 'choose wisely';
+        wrap.style.display = 'flex';
+        result.style.display = 'none';
+
+        // reset no btn position
+        setTimeout(() => {
+            noBtn.style.position = 'relative';
+            noBtn.style.left = 'auto';
+            noBtn.style.top = 'auto';
+        }, 50);
+    }, 2500);
 }
 </script>
-""", unsafe_allow_html=True)
-
-# --- FUN FACTS ---
-st.markdown("""
-<div style="text-align:center; margin: 1.5rem 0 0.5rem; position:relative; z-index:1;">
-    <span style="font-size:0.7rem; letter-spacing:3px; text-transform:uppercase; color:#c084a0;">reasons ur actually the worst 😭</span>
-</div>
-""", unsafe_allow_html=True)
-
-facts = [
-    ("😭", "threatens to slap me literally every other day and has never once apologized"),
-    ("📝", "wrote 4 whole pages for absolutely no reason and thinks tht's normal"),
-    ("💀", "crashes out completely every time geenuka gets mentioned"),
-    ("🖤", "wears black like it's a personality trait and honestly fair enough"),
-    ("🧠", "was the quietest nerd in cambridge 6 and now won't stop talking"),
-]
-
-if 'fact_idx' not in st.session_state:
-    st.session_state.fact_idx = 0
-
-emoji, text = facts[st.session_state.fact_idx]
-st.markdown(f"""
-<div class="fact-card">
-    <div class="fact-emoji">{emoji}</div>
-    <div class="fact-text">{text}</div>
-    <div style="color:#c084a0; font-size:0.7rem; margin-top:0.8rem;">{st.session_state.fact_idx + 1} / {len(facts)}</div>
-</div>
-""", unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns([1,2,1])
-with col2:
-    if st.button("next roast 😂", use_container_width=True):
-        st.session_state.fact_idx = (st.session_state.fact_idx + 1) % len(facts)
-        st.rerun()
-
-# --- PHOTO GRID ---
-st.markdown("""
-<div style="text-align:center; margin: 1.5rem 0 0.5rem; position:relative; z-index:1;">
-    <span style="font-size:0.7rem; letter-spacing:3px; text-transform:uppercase; color:#c084a0;">some memories 🎀</span>
-</div>
-<div class="photo-grid">
-    <div class="photo-placeholder">📸</div>
-    <div class="photo-placeholder">🌸</div>
-    <div class="photo-placeholder">📸</div>
-    <div class="photo-placeholder">🌺</div>
-    <div class="photo-placeholder">📸</div>
-    <div class="photo-placeholder">🌷</div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- MESSAGE ---
-st.markdown("""
-<div class="msg-card" id="msg-card-reveal">
-    <div class="msg-quote">"</div>
-    <div class="msg-text">
-        happy birthday sayumi 💗🎂 ur officially old now and i hope ur enjoying the slow descent into ancient history lmao. i still remember cambridge 6, the quiet nerd in the corner who wouldn't say a word to anyone, BUT NOT NOW OKK?? now she threatens to slap me on a daily basis and somehow tht's become one of my favorite things about her 😭<br><br>
-        and listen ik i've been a bit distant lately and i already apologized for tht, but i need u to know tht has never once changed how much u mean to me. u wrote me 4 whole pages once for jz no reason and i think about tht more than u know, cuz tht's jz the kind of person u are. u give so much without even thinking about it and i genuinely don't say this enough but i'm so grateful to have u in my life. like actually grateful, not jz saying it. u've been there through sm and i don't take tht lightly 🥹<br><br>
-        the kind of bsf tht checks on u, roasts u, threatens to physically assault u, and somehow still makes u feel like the luckiest person in the room 😂🫶<br><br>
-        have the best birthday okay. wear black obviously. eat way too much cake. and for the love of everything please jz talk to geenuka already ur going to give yourself a heart attack every time i mention his name 😭💙<br><br>
-        cheers to u being a bit older, more unbothered and still living in the same era as me 🎂🫶🥹
-    </div>
-    <div class="msg-sign">— ur bsf, always 💗</div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- FOOTER ---
-st.markdown('<div class="footer">made with 💗 · for sayumi · august 6th 2026</div>', unsafe_allow_html=True)
+</body>
+</html>
