@@ -450,8 +450,8 @@ function runAway() {{
   const cardRect = gameCard.getBoundingClientRect();
   noBtn.style.left = (10 + Math.random() * Math.max(10, cardRect.width - 120)) + 'px';
   noBtn.style.top = (80 + Math.random() * Math.max(10, cardRect.height - 130)) + 'px';
-  if (noEscapes >= 5) noBtn.textContent = 'noooo \u{1F62D}';
-  else if (noEscapes >= 3) noBtn.textContent = 'no... \u{1FAF3}';
+  if (noEscapes >= 5) noBtn.textContent = 'noooo 😭';
+  else if (noEscapes >= 3) noBtn.textContent = 'no... 🫣';
 }}
 function yesClicked() {{
   if (gameWon) return;
