@@ -92,7 +92,14 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
 .next-btn:hover{{transform:translateY(-3px) scale(1.04);box-shadow:0 8px 30px rgba(232,121,160,0.4);}}
 .next-btn:active{{transform:scale(0.96);}}
 
-/* LOCK */
+/* TAP TO START OVERLAY */
+#tap-overlay{{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:9000;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:transparent;
+}}
+#tap-overlay.gone{{display:none;}}
 .lock-title{{font-family:'Playfair Display',serif;font-size:1.6rem;color:#f0abca;margin-bottom:0.3rem;text-align:center;}}
 .lock-sub{{font-size:0.75rem;color:#9d8fc0;letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;text-align:center;}}
 .pin-display{{display:flex;gap:12px;margin-bottom:1.5rem;justify-content:center;}}
@@ -231,6 +238,10 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
   <button class="nav-dot" onclick="goTo(7)"></button>
   <button class="nav-dot" onclick="goTo(8)"></button>
   <button class="nav-dot" onclick="goTo(9)"></button>
+</div>
+
+<!-- TAP OVERLAY -->
+<div id="tap-overlay" onclick="activatePage()">
 </div>
 
 <!-- PAGE 0: LOCK -->
@@ -417,6 +428,20 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
 </div>
 
 <script>
+// ---- FOCUS FIX ----
+function activatePage() {{
+  document.getElementById('tap-overlay').classList.add('gone');
+  document.body.focus();
+}}
+// try auto-focus on load
+window.addEventListener('load', () => {{
+  try {{ window.focus(); document.body.click(); }} catch(e) {{}}
+  // if user interacts, remove overlay
+  document.addEventListener('pointerdown', () => {{
+    document.getElementById('tap-overlay').classList.add('gone');
+  }}, {{once: true}});
+}});
+
 // ---- PAGE SYSTEM ----
 let currentPage = 0;
 const pageIds = ['page-lock','page-hero','page-countdown','page-roasts','page-photos','page-game','page-msg','page-facts','page-audio','page-ending'];
