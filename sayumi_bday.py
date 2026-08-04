@@ -27,15 +27,21 @@ for i in range(1, 5):
     else:
         photos.append(None)
 
-placeholders = ["📸","🌸","📸","🌺","🌷","💗"]
-photo_tags = ""
+# build JS array of photo srcs
+photo_srcs = []
+placeholders_emoji = ["📸","🌸","📸","🌺","🌷","💗"]
 for i, src in enumerate(photos):
     if src:
-        photo_tags += f'<img src="{src}" class="photo-img" alt="selfie">'
+        photo_srcs.append(f'"{src}"')
     else:
-        photo_tags += f'<div class="photo-placeholder">{placeholders[i]}</div>'
-photo_tags += f'<div class="photo-placeholder">{placeholders[4]}</div>'
-photo_tags += f'<div class="photo-placeholder">{placeholders[5]}</div>'
+        photo_srcs.append(f'"__placeholder_{placeholders_emoji[i]}__"')
+photo_srcs.append(f'"__placeholder_{placeholders_emoji[4]}__"')
+photo_srcs.append(f'"__placeholder_{placeholders_emoji[5]}__"')
+photo_srcs_js = "[" + ",".join(photo_srcs) + "]"
+
+# load audio
+audio_b64 = img_to_b64("sayumi_singing.ogg")
+audio_src = f"data:audio/ogg;base64,{audio_b64}" if audio_b64 else ""
 
 html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -51,145 +57,180 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
 .heart-float{{position:absolute;animation:floatUp linear infinite;opacity:0;}}
 @keyframes floatUp{{0%{{transform:translateY(100vh) rotate(0deg);opacity:0.7;}}100%{{transform:translateY(-10vh) rotate(360deg);opacity:0;}}}}
 
-/* ---- PAGE SYSTEM ---- */
+/* PAGE SYSTEM */
 .page{{
   position:fixed;top:0;left:0;width:100%;height:100%;
   display:flex;align-items:center;justify-content:center;
   flex-direction:column;
-  transition:opacity 0.6s ease,transform 0.6s ease;
+  transition:opacity 0.55s ease,transform 0.55s ease;
   opacity:0;pointer-events:none;transform:translateY(30px);
-  z-index:100;padding:1.5rem;
+  z-index:100;padding:1.2rem 1.2rem 1.2rem;
   background:linear-gradient(135deg,#fff0f5 0%,#fef9ff 40%,#f0f4ff 100%);
   overflow-y:auto;
+  gap:0.8rem;
 }}
 .page.active{{opacity:1;pointer-events:all;transform:translateY(0);}}
 .page.exit-up{{opacity:0;transform:translateY(-40px);}}
 .page.exit-down{{opacity:0;transform:translateY(40px);}}
-
-/* lock page dark bg */
 #page-lock{{background:linear-gradient(135deg,#1a0f2e 0%,#2d1b4e 50%,#1a1035 100%);}}
 
-/* nav dots */
-.nav-dots{{
-  position:fixed;right:16px;top:50%;transform:translateY(-50%);
-  display:flex;flex-direction:column;gap:8px;z-index:200;
+/* scrollable page variant */
+.page.scrollable{{
+  align-items:center;
+  justify-content:flex-start;
+  padding-top:2rem;
+  padding-bottom:2rem;
 }}
-.nav-dot{{
-  width:8px;height:8px;border-radius:50%;
-  background:rgba(232,121,160,0.3);cursor:pointer;
-  transition:background 0.3s ease,transform 0.3s ease;
-  border:none;outline:none;
-}}
+
+/* NAV DOTS */
+.nav-dots{{position:fixed;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:200;}}
+.nav-dot{{width:8px;height:8px;border-radius:50%;background:rgba(232,121,160,0.3);cursor:pointer;transition:background 0.3s ease,transform 0.3s ease;border:none;outline:none;}}
 .nav-dot.active{{background:#e879a0;transform:scale(1.4);}}
 
-/* next btn */
-.next-btn{{
-  margin-top:1.5rem;
-  background:linear-gradient(135deg,#e879a0,#a78bfa);
-  color:white;border:none;border-radius:50px;
-  padding:0.7rem 2rem;font-size:0.82rem;
-  font-family:'DM Sans',sans-serif;font-weight:500;
-  cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease;
-  box-shadow:0 4px 20px rgba(232,121,160,0.3);
-}}
+/* NEXT BTN */
+.next-btn{{background:linear-gradient(135deg,#e879a0,#a78bfa);color:white;border:none;border-radius:50px;padding:0.65rem 1.8rem;font-size:0.82rem;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease;box-shadow:0 4px 20px rgba(232,121,160,0.3);flex-shrink:0;}}
 .next-btn:hover{{transform:translateY(-3px) scale(1.04);box-shadow:0 8px 30px rgba(232,121,160,0.4);}}
 .next-btn:active{{transform:scale(0.96);}}
 
-/* ---- LOCK ---- */
+/* LOCK */
 .lock-title{{font-family:'Playfair Display',serif;font-size:1.6rem;color:#f0abca;margin-bottom:0.3rem;text-align:center;}}
-.lock-sub{{font-size:0.75rem;color:#9d8fc0;letter-spacing:2px;text-transform:uppercase;margin-bottom:2rem;text-align:center;}}
-.pin-display{{display:flex;gap:12px;margin-bottom:2rem;justify-content:center;}}
+.lock-sub{{font-size:0.75rem;color:#9d8fc0;letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;text-align:center;}}
+.pin-display{{display:flex;gap:12px;margin-bottom:1.5rem;justify-content:center;}}
 .pin-dot{{width:16px;height:16px;border-radius:50%;border:2px solid #a78bfa;background:transparent;transition:background 0.2s ease,transform 0.15s ease;}}
 .pin-dot.filled{{background:#e879a0;border-color:#e879a0;transform:scale(1.2);}}
 .pin-dot.error{{background:#f87171;border-color:#f87171;animation:shake 0.4s ease;}}
 @keyframes shake{{0%,100%{{transform:translateX(0);}}20%{{transform:translateX(-6px);}}40%{{transform:translateX(6px);}}60%{{transform:translateX(-4px);}}80%{{transform:translateX(4px);}}}}
 .keypad{{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:240px;width:100%;}}
-.key{{background:rgba(255,255,255,0.07);border:1px solid rgba(167,139,250,0.25);border-radius:16px;padding:1rem;font-size:1.4rem;font-weight:500;color:#e8e0f0;cursor:pointer;text-align:center;transition:background 0.15s ease,transform 0.1s ease,box-shadow 0.15s ease;font-family:'DM Sans',sans-serif;user-select:none;}}
-.key:hover{{background:rgba(167,139,250,0.15);transform:scale(1.06);box-shadow:0 4px 20px rgba(167,139,250,0.2);}}
+.key{{background:rgba(255,255,255,0.07);border:1px solid rgba(167,139,250,0.25);border-radius:16px;padding:1rem;font-size:1.4rem;font-weight:500;color:#e8e0f0;cursor:pointer;text-align:center;transition:background 0.15s ease,transform 0.1s ease;font-family:'DM Sans',sans-serif;user-select:none;}}
+.key:hover{{background:rgba(167,139,250,0.15);transform:scale(1.06);}}
 .key:active{{transform:scale(0.93);background:rgba(232,121,160,0.2);}}
 .key.del{{font-size:1rem;color:#a78bfa;}}
 .key.empty{{visibility:hidden;}}
-.lock-hint{{font-size:0.65rem;color:#6b5f80;margin-top:1.5rem;letter-spacing:1px;}}
+.lock-hint{{font-size:0.65rem;color:#6b5f80;margin-top:1.2rem;letter-spacing:1px;}}
 
-/* ---- HERO ---- */
-.hero-tag{{font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:#c084a0;margin-bottom:1rem;text-align:center;}}
+/* HERO */
+.hero-tag{{font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:#c084a0;text-align:center;}}
 .hero-name{{font-family:'Playfair Display',serif;font-size:clamp(3.5rem,12vw,6.5rem);font-weight:900;background:linear-gradient(135deg,#e879a0,#a78bfa,#60a5fa,#e879a0);background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;animation:gradientShift 4s ease infinite;text-align:center;}}
 @keyframes gradientShift{{0%,100%{{background-position:0% 50%;}}50%{{background-position:100% 50%;}}}}
-.hero-sub{{font-size:1.05rem;color:#9d6b8a;font-weight:300;margin-top:0.5rem;text-align:center;}}
-.emoji-row{{text-align:center;font-size:1.6rem;letter-spacing:8px;margin:1rem 0;animation:float 3s ease-in-out infinite;}}
+.hero-sub{{font-size:1.05rem;color:#9d6b8a;font-weight:300;text-align:center;}}
+.emoji-row{{text-align:center;font-size:1.6rem;letter-spacing:8px;animation:float 3s ease-in-out infinite;}}
 @keyframes float{{0%,100%{{transform:translateY(0);}}50%{{transform:translateY(-8px);}}}}
 
-/* ---- COUNTDOWN ---- */
-.section-label{{text-align:center;font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:#c084a0;margin-bottom:1rem;}}
-.countdown-wrap{{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}}
-.cd-box{{background:white;border-radius:20px;padding:1.2rem 1.4rem;min-width:75px;text-align:center;box-shadow:0 4px 24px rgba(232,121,160,0.15);border:1px solid rgba(232,121,160,0.2);transition:transform 0.3s ease,box-shadow 0.3s ease;cursor:default;}}
-.cd-box:hover{{transform:translateY(-6px) scale(1.06);box-shadow:0 12px 40px rgba(232,121,160,0.28);}}
-.cd-num{{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;color:#e879a0;line-height:1;display:block;transition:transform 0.15s ease;}}
+/* SECTION LABELS */
+.section-label{{text-align:center;font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:#c084a0;}}
+
+/* COUNTDOWN */
+.countdown-wrap{{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}}
+.cd-box{{background:white;border-radius:18px;padding:1rem 1.2rem;min-width:70px;text-align:center;box-shadow:0 4px 24px rgba(232,121,160,0.15);border:1px solid rgba(232,121,160,0.2);transition:transform 0.3s ease;cursor:default;}}
+.cd-box:hover{{transform:translateY(-5px) scale(1.05);}}
+.cd-num{{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:#e879a0;line-height:1;display:block;transition:transform 0.15s ease;}}
 .cd-num.bump{{transform:scale(1.2);color:#a78bfa;}}
 .cd-label{{font-size:0.6rem;text-transform:uppercase;letter-spacing:2px;color:#c084a0;margin-top:4px;display:block;}}
-.bday-banner{{text-align:center;padding:2rem;background:linear-gradient(135deg,#fce7f0,#ede9fe,#dbeafe);border-radius:24px;animation:shimmer 3s ease-in-out infinite;}}
+.bday-banner{{text-align:center;padding:1.5rem 2rem;background:linear-gradient(135deg,#fce7f0,#ede9fe,#dbeafe);border-radius:24px;animation:shimmer 3s ease-in-out infinite;width:100%;max-width:500px;}}
 @keyframes shimmer{{0%,100%{{box-shadow:0 0 30px rgba(232,121,160,0.2);}}50%{{box-shadow:0 0 60px rgba(167,139,250,0.4);}}}}
-.bday-title{{font-family:'Playfair Display',serif;font-size:2.5rem;background:linear-gradient(135deg,#e879a0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:float 2s ease-in-out infinite;}}
+.bday-title{{font-family:'Playfair Display',serif;font-size:2.2rem;background:linear-gradient(135deg,#e879a0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:float 2s ease-in-out infinite;}}
 
-/* ---- BUTTONS ---- */
-.btn-row{{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:1rem 0;}}
-.btn{{border:none;border-radius:50px;padding:0.75rem 1.6rem;font-size:0.82rem;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease;}}
+/* BUTTONS */
+.btn-row{{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}}
+.btn{{border:none;border-radius:50px;padding:0.65rem 1.4rem;font-size:0.8rem;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease;}}
 .btn-primary{{background:linear-gradient(135deg,#e879a0,#a78bfa);color:white;box-shadow:0 4px 20px rgba(232,121,160,0.3);}}
 .btn-primary:hover{{transform:translateY(-3px) scale(1.04);box-shadow:0 8px 30px rgba(232,121,160,0.4);}}
 .btn-primary:active{{transform:scale(0.96);}}
 .btn-outline{{background:white;color:#e879a0;border:2px solid #e879a0;}}
 .btn-outline:hover{{background:#fff0f5;transform:translateY(-3px);}}
-.btn-dev{{background:#1e1e2e;color:#a78bfa;border:1px dashed #a78bfa55;font-size:0.72rem;padding:0.6rem 1.2rem;}}
+.btn-dev{{background:#1e1e2e;color:#a78bfa;border:1px dashed #a78bfa55;font-size:0.7rem;padding:0.55rem 1rem;}}
 .btn-dev:hover{{background:#2a2440;transform:translateY(-2px);}}
-.dev-badge{{display:inline-block;background:#1e1e2e;color:#a78bfa;font-size:0.6rem;font-family:monospace;padding:2px 8px;border-radius:4px;margin-left:6px;border:1px solid #a78bfa44;}}
+.dev-badge{{display:inline-block;background:#1e1e2e;color:#a78bfa;font-size:0.6rem;font-family:monospace;padding:2px 6px;border-radius:4px;margin-left:4px;border:1px solid #a78bfa44;}}
 
-/* ---- ROAST ---- */
-.fact-card{{background:linear-gradient(135deg,#fdf2f8,#faf5ff);border-radius:20px;padding:1.5rem 2rem;text-align:center;border:1px solid rgba(232,121,160,0.15);transition:opacity 0.3s ease,transform 0.3s ease;min-height:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;max-width:500px;}}
+/* ROAST */
+.fact-card{{background:linear-gradient(135deg,#fdf2f8,#faf5ff);border-radius:20px;padding:1.2rem 1.5rem;text-align:center;border:1px solid rgba(232,121,160,0.15);transition:opacity 0.3s ease,transform 0.3s ease;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;max-width:500px;}}
 .fact-card.switching{{opacity:0;transform:scale(0.95);}}
-.fact-emoji{{font-size:2.2rem;}}
-.fact-text{{color:#6b4f6b;font-size:0.9rem;line-height:1.7;}}
-.fact-counter{{color:#c084a0;font-size:0.65rem;letter-spacing:1px;margin-top:4px;}}
+.fact-emoji{{font-size:2rem;}}
+.fact-text{{color:#6b4f6b;font-size:0.88rem;line-height:1.7;}}
+.fact-counter{{color:#c084a0;font-size:0.62rem;letter-spacing:1px;}}
 
-/* ---- PHOTOS ---- */
-.photo-grid{{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:500px;}}
-.photo-placeholder{{aspect-ratio:1;background:linear-gradient(135deg,#fce7f0,#ede9fe);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;border:2px dashed rgba(232,121,160,0.3);transition:transform 0.3s ease;cursor:pointer;}}
-.photo-placeholder:hover{{transform:scale(1.06) rotate(2deg);}}
-.photo-img{{aspect-ratio:1;object-fit:cover;border-radius:16px;width:100%;transition:transform 0.3s ease;cursor:pointer;}}
-.photo-img:hover{{transform:scale(1.06) rotate(2deg);}}
+/* PHOTO SLIDESHOW */
+.photo-stage{{position:relative;width:100%;max-width:340px;aspect-ratio:1;border-radius:24px;overflow:hidden;cursor:pointer;box-shadow:0 12px 40px rgba(232,121,160,0.2);flex-shrink:0;}}
+.photo-slide{{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;transition:opacity 0.5s ease,transform 0.5s ease;}}
+.photo-slide img{{width:100%;height:100%;object-fit:cover;border-radius:24px;}}
+.photo-slide .ph{{width:100%;height:100%;background:linear-gradient(135deg,#fce7f0,#ede9fe);display:flex;align-items:center;justify-content:center;font-size:3.5rem;border-radius:24px;border:2px dashed rgba(232,121,160,0.3);}}
+.photo-slide.hidden{{opacity:0;transform:scale(0.92);pointer-events:none;}}
+.photo-dots{{display:flex;gap:6px;justify-content:center;}}
+.photo-dot{{width:7px;height:7px;border-radius:50%;background:rgba(232,121,160,0.3);transition:background 0.3s ease,transform 0.3s ease;}}
+.photo-dot.active{{background:#e879a0;transform:scale(1.3);}}
+.photo-hint{{font-size:0.65rem;color:#c084a0;letter-spacing:1px;}}
 
-/* ---- GAME ---- */
-.game-wrap{{width:100%;max-width:500px;background:white;border-radius:24px;padding:2rem;text-align:center;box-shadow:0 8px 40px rgba(232,121,160,0.12);border:1px solid rgba(232,121,160,0.18);position:relative;}}
-.game-question{{font-family:'Playfair Display',serif;font-size:1.2rem;color:#6b4f6b;margin-bottom:0.3rem;}}
-.game-sub{{font-size:0.75rem;color:#c084a0;letter-spacing:1px;margin-bottom:1rem;}}
-.game-arena{{position:relative;width:100%;height:160px;border:2px dashed rgba(232,121,160,0.2);border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fdf2f8,#faf5ff);}}
-.game-yes-btn{{background:linear-gradient(135deg,#e879a0,#a78bfa);color:white;border:none;border-radius:50px;padding:0.7rem 1.8rem;font-size:0.85rem;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;box-shadow:0 4px 20px rgba(232,121,160,0.3);transition:transform 0.15s ease;z-index:2;position:relative;}}
-.game-yes-btn:hover{{transform:scale(1.06);}}
-.game-yes-btn:active{{transform:scale(0.95);}}
-.btn-no{{background:white;color:#9d6b8a;border:2px solid #e0b4c8;border-radius:50px;padding:0.7rem 1.5rem;font-size:0.82rem;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;position:absolute;white-space:nowrap;transition:left 0.4s ease,top 0.4s ease,font-size 0.2s ease;}}
-.game-result{{font-size:1rem;color:#e879a0;font-family:'Playfair Display',serif;margin-top:1rem;animation:popIn 0.4s ease both;}}
+/* GAME */
+.game-wrap{{width:100%;max-width:480px;background:white;border-radius:24px;padding:1.5rem;text-align:center;box-shadow:0 8px 40px rgba(232,121,160,0.12);border:1px solid rgba(232,121,160,0.18);}}
+.game-question{{font-family:'Playfair Display',serif;font-size:1.15rem;color:#6b4f6b;margin-bottom:0.3rem;}}
+.game-sub{{font-size:0.73rem;color:#c084a0;letter-spacing:1px;margin-bottom:0.8rem;}}
+.game-arena{{position:relative;width:100%;height:140px;border:2px dashed rgba(232,121,160,0.25);border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#fdf2f8,#faf5ff);}}
+.game-yes-btn{{background:linear-gradient(135deg,#e879a0,#a78bfa);color:white;border:none;border-radius:50px;padding:0.65rem 1.6rem;font-size:0.82rem;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;box-shadow:0 4px 20px rgba(232,121,160,0.3);position:absolute;left:25%;top:50%;transform:translate(-50%,-50%);transition:transform 0.15s ease;z-index:2;}}
+.game-yes-btn:hover{{transform:translate(-50%,-50%) scale(1.08);}}
+.game-yes-btn:active{{transform:translate(-50%,-50%) scale(0.95);}}
+.btn-no{{background:white;color:#9d6b8a;border:2px solid #e0b4c8;border-radius:50px;padding:0.65rem 1.4rem;font-size:0.82rem;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;position:absolute;white-space:nowrap;transition:left 0.4s cubic-bezier(.25,.46,.45,.94),top 0.4s cubic-bezier(.25,.46,.45,.94),font-size 0.2s ease;left:70%;top:50%;transform:translate(-50%,-50%);}}
+.game-result{{font-size:1rem;color:#e879a0;font-family:'Playfair Display',serif;margin-top:0.8rem;animation:popIn 0.4s ease both;display:none;}}
 @keyframes popIn{{from{{opacity:0;transform:scale(0.8);}}to{{opacity:1;transform:scale(1);}}}}
 
-/* ---- MESSAGE ---- */
-.msg-wrap{{width:100%;max-width:500px;background:white;border-radius:24px;padding:2rem;box-shadow:0 8px 40px rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.18);}}
-.msg-quote{{font-size:3.5rem;color:#f0abca;font-family:'Playfair Display',serif;line-height:0.5;margin-bottom:1rem;}}
-.msg-text{{font-size:0.9rem;line-height:1.95;color:#6b4f6b;font-weight:300;}}
-.msg-sign{{margin-top:1.5rem;font-family:'Playfair Display',serif;font-style:italic;color:#c084a0;font-size:1rem;}}
+/* FUN FACTS about her */
+.fun-fact-card{{background:white;border-radius:20px;padding:1.5rem;text-align:center;box-shadow:0 4px 24px rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.15);width:100%;max-width:500px;animation:fadeSlideUp 0.5s ease both;}}
+.fun-fact-emoji{{font-size:2.5rem;margin-bottom:0.5rem;}}
+.fun-fact-title{{font-family:'Playfair Display',serif;font-size:1rem;color:#6b4f6b;margin-bottom:0.3rem;}}
+.fun-fact-text{{font-size:0.85rem;color:#9d6b8a;line-height:1.6;}}
 
-.footer{{font-size:0.72rem;color:#c084a0;letter-spacing:1px;margin-top:1rem;text-align:center;}}
+/* MESSAGE */
+.msg-wrap{{width:100%;max-width:500px;background:white;border-radius:24px;padding:1.8rem;box-shadow:0 8px 40px rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.18);}}
+.msg-quote{{font-size:3rem;color:#f0abca;font-family:'Playfair Display',serif;line-height:0.5;margin-bottom:1rem;}}
+.msg-text{{font-size:0.88rem;line-height:1.95;color:#6b4f6b;font-weight:300;}}
+.msg-sign{{margin-top:1.2rem;font-family:'Playfair Display',serif;font-style:italic;color:#c084a0;font-size:0.95rem;}}
+
+/* AUDIO PLAYER */
+.audio-card{{background:white;border-radius:24px;padding:1.8rem;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(232,121,160,0.15);border:1px solid rgba(232,121,160,0.2);text-align:center;}}
+.audio-title{{font-family:'Playfair Display',serif;font-size:1.2rem;color:#6b4f6b;margin-bottom:0.2rem;}}
+.audio-sub{{font-size:0.75rem;color:#c084a0;letter-spacing:1px;margin-bottom:1.5rem;}}
+.audio-visualizer{{display:flex;align-items:flex-end;justify-content:center;gap:4px;height:48px;margin-bottom:1.2rem;}}
+.audio-bar{{width:6px;border-radius:3px;background:linear-gradient(to top,#e879a0,#a78bfa);transition:height 0.15s ease;height:6px;}}
+.audio-bar.active{{animation:barBounce 0.6s ease-in-out infinite;}}
+.audio-bar:nth-child(2){{animation-delay:0.1s;}}
+.audio-bar:nth-child(3){{animation-delay:0.2s;}}
+.audio-bar:nth-child(4){{animation-delay:0.05s;}}
+.audio-bar:nth-child(5){{animation-delay:0.15s;}}
+.audio-bar:nth-child(6){{animation-delay:0.25s;}}
+.audio-bar:nth-child(7){{animation-delay:0.08s;}}
+.audio-bar:nth-child(8){{animation-delay:0.18s;}}
+@keyframes barBounce{{0%,100%{{height:6px;}}50%{{height:36px;}}}}
+.audio-controls{{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:1rem;}}
+.play-btn{{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#e879a0,#a78bfa);border:none;color:white;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(232,121,160,0.35);transition:transform 0.2s ease,box-shadow 0.2s ease;}}
+.play-btn:hover{{transform:scale(1.08);box-shadow:0 8px 30px rgba(232,121,160,0.45);}}
+.play-btn:active{{transform:scale(0.95);}}
+.audio-progress-wrap{{width:100%;background:#fce7f0;border-radius:10px;height:6px;cursor:pointer;position:relative;}}
+.audio-progress-fill{{height:100%;border-radius:10px;background:linear-gradient(90deg,#e879a0,#a78bfa);width:0%;transition:width 0.3s linear;}}
+.audio-times{{display:flex;justify-content:space-between;font-size:0.65rem;color:#c084a0;font-family:monospace;margin-top:4px;}}
+.audio-label{{font-size:0.72rem;color:#9d6b8a;margin-top:0.8rem;font-style:italic;}}
+
+/* ENDING */
+.ending-wrap{{text-align:center;width:100%;max-width:500px;}}
+.ending-big{{font-family:'Playfair Display',serif;font-size:clamp(2rem,8vw,3.5rem);font-weight:900;background:linear-gradient(135deg,#e879a0,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientShift 3s ease infinite;margin-bottom:0.5rem;}}
+.ending-sub{{color:#9d6b8a;font-size:0.88rem;line-height:1.7;margin-bottom:1rem;}}
+
+.footer{{font-size:0.7rem;color:#c084a0;letter-spacing:1px;text-align:center;}}
+@keyframes fadeSlideUp{{from{{opacity:0;transform:translateY(20px);}}to{{opacity:1;transform:translateY(0);}}}}
 </style>
 </head>
 <body>
 <canvas id="confetti-canvas"></canvas>
 <div class="hearts-bg" id="hearts-bg"></div>
 
-<!-- NAV DOTS (hidden on lock page) -->
 <div class="nav-dots" id="nav-dots" style="display:none">
-  <button class="nav-dot" onclick="goTo(0)"></button>
   <button class="nav-dot" onclick="goTo(1)"></button>
   <button class="nav-dot" onclick="goTo(2)"></button>
   <button class="nav-dot" onclick="goTo(3)"></button>
   <button class="nav-dot" onclick="goTo(4)"></button>
   <button class="nav-dot" onclick="goTo(5)"></button>
+  <button class="nav-dot" onclick="goTo(6)"></button>
+  <button class="nav-dot" onclick="goTo(7)"></button>
+  <button class="nav-dot" onclick="goTo(8)"></button>
+  <button class="nav-dot" onclick="goTo(9)"></button>
 </div>
 
 <!-- PAGE 0: LOCK -->
@@ -225,12 +266,12 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
   <div class="hero-name">Sayumi</div>
   <div class="hero-sub">turning 14 &middot; august 6th &#10024;</div>
   <div class="emoji-row">&#127874; &#128151; &#127881; &#129782; &#129401;</div>
-  <button class="next-btn" onclick="goTo(2)">let's go &#128151;</button>
+  <button class="next-btn" onclick="goTo(2)">open &#128151;</button>
 </div>
 
 <!-- PAGE 2: COUNTDOWN -->
 <div class="page" id="page-countdown">
-  <div id="countdown-inner">
+  <div id="countdown-inner" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0.8rem;">
     <div class="section-label">countdown to the big day &#127872;</div>
     <div class="countdown-wrap">
       <div class="cd-box"><span class="cd-num" id="cd-days">--</span><span class="cd-label">Days</span></div>
@@ -239,22 +280,22 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
       <div class="cd-box"><span class="cd-num" id="cd-secs">--</span><span class="cd-label">Seconds</span></div>
     </div>
   </div>
-  <div id="bday-inner" style="display:none">
+  <div id="bday-inner" style="display:none;width:100%;max-width:500px;">
     <div class="bday-banner">
       <div class="bday-title">&#127874; IT'S YOUR DAY!! &#127874;</div>
-      <p style="color:#9d6b8a;margin-top:1rem;">Happy Birthday Sayumi &#128151;</p>
+      <p style="color:#9d6b8a;margin-top:0.8rem;">Happy Birthday Sayumi &#128151;</p>
     </div>
   </div>
-  <div class="btn-row" style="margin-top:1.5rem;">
+  <div class="btn-row">
     <button class="btn btn-primary" onclick="launchConfetti()">&#127881; Confetti!</button>
-    <button class="btn btn-outline" onclick="heartShower()">&#128151; Hearts</button>
+    <button class="btn btn-primary" onclick="heartShower()">&#128151; Hearts</button>
     <button class="btn btn-dev" onclick="devMode()">&#9881;&#65039; dev 10s <span class="dev-badge">DEV</span></button>
   </div>
   <button class="next-btn" onclick="goTo(3)">next &#128151;</button>
 </div>
 
-<!-- PAGE 3: ROASTS + PHOTOS -->
-<div class="page" id="page-fun" style="gap:1rem;">
+<!-- PAGE 3: ROASTS -->
+<div class="page" id="page-roasts">
   <div class="section-label">reasons ur actually the worst &#128557;</div>
   <div class="fact-card" id="fact-card">
     <div class="fact-emoji" id="fact-emoji">&#128557;</div>
@@ -262,27 +303,36 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
     <div class="fact-counter" id="fact-counter">1 / 5</div>
   </div>
   <button class="btn btn-outline" onclick="nextRoast()">next roast &#128514;</button>
-  <div class="section-label" style="margin-top:0.5rem;">ur camera roll era &#128248;</div>
-  <div class="photo-grid">{photo_tags}</div>
   <button class="next-btn" onclick="goTo(4)">next &#128151;</button>
 </div>
 
-<!-- PAGE 4: GAME -->
+<!-- PAGE 4: PHOTOS -->
+<div class="page" id="page-photos">
+  <div class="section-label">ur camera roll era &#128248;</div>
+  <div class="photo-stage" id="photo-stage" onclick="nextPhoto()">
+    <div id="photo-slides"></div>
+  </div>
+  <div class="photo-dots" id="photo-dots"></div>
+  <div class="photo-hint">tap to go to next pic &#128247;</div>
+  <button class="next-btn" onclick="goTo(5)">next &#128151;</button>
+</div>
+
+<!-- PAGE 5: GAME -->
 <div class="page" id="page-game">
   <div class="game-wrap">
-    <div class="game-question" id="game-question">are you the best bsf in the world? &#129402;</div>
+    <div class="game-question" id="game-question">ur old now aren't u? &#128514;</div>
     <div class="game-sub" id="game-sub">choose wisely</div>
     <div class="game-arena" id="game-arena">
       <button class="game-yes-btn" id="yes-btn" onclick="yesClicked()">yes &#128151;</button>
       <button class="btn-no" id="no-btn" onmouseover="runAway()" ontouchstart="runAway()">no</button>
     </div>
-    <div class="game-result" id="game-result" style="display:none"></div>
+    <div class="game-result" id="game-result"></div>
   </div>
-  <button class="next-btn" onclick="goTo(5)" style="margin-top:1.2rem;">read my msg &#128140;</button>
+  <button class="next-btn" onclick="goTo(6)" style="margin-top:0.8rem;">read my msg &#128140;</button>
 </div>
 
-<!-- PAGE 5: MESSAGE -->
-<div class="page" id="page-msg">
+<!-- PAGE 6: MESSAGE (scrollable) -->
+<div class="page scrollable" id="page-msg">
   <div class="msg-wrap">
     <div class="msg-quote">"</div>
     <div class="msg-text">
@@ -294,29 +344,97 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
     </div>
     <div class="msg-sign">— ur bsf, always &#128151;</div>
   </div>
-  <div class="footer">made with &#128151; &middot; for sayumi &middot; august 6th 2026</div>
+  <button class="next-btn" onclick="goTo(7)" style="flex-shrink:0;">almost done &#129782;</button>
+</div>
+
+<!-- PAGE 7: FUN FACTS about Sayumi -->
+<div class="page" id="page-facts">
+  <div class="section-label">some things about u &#129401;</div>
+  <div id="fun-facts-wrap" style="width:100%;max-width:500px;display:flex;flex-direction:column;gap:0.8rem;">
+    <div class="fun-fact-card">
+      <div class="fun-fact-emoji">&#127878;</div>
+      <div class="fun-fact-title">u came a long way</div>
+      <div class="fun-fact-text">from the quiet girl in cambridge 6 to the person who threatens to slap me daily. genuinely proud of this era.</div>
+    </div>
+    <div class="fun-fact-card" style="animation-delay:0.1s">
+      <div class="fun-fact-emoji">&#128221;</div>
+      <div class="fun-fact-title">u wrote me 4 pages. for no reason.</div>
+      <div class="fun-fact-text">tht says everything about who u are. u care a lot even when u don't have to.</div>
+    </div>
+    <div class="fun-fact-card" style="animation-delay:0.2s">
+      <div class="fun-fact-emoji">&#128420;</div>
+      <div class="fun-fact-title">the black fit era will never end</div>
+      <div class="fun-fact-text">and honestly? it shouldn't. it works.</div>
+    </div>
+  </div>
+  <button class="next-btn" onclick="goTo(8)">next &#127874;</button>
+</div>
+
+<!-- PAGE 8: AUDIO -->
+<div class="page" id="page-audio">
+  <div class="section-label">wait... is tht her singing? &#127908;</div>
+  <div class="audio-card">
+    <div class="audio-title">&#127925; freak of the fall</div>
+    <div class="audio-sub">featuring: sayumi live &#127908;</div>
+    <div class="audio-visualizer" id="visualizer">
+      <div class="audio-bar"></div><div class="audio-bar"></div>
+      <div class="audio-bar"></div><div class="audio-bar"></div>
+      <div class="audio-bar"></div><div class="audio-bar"></div>
+      <div class="audio-bar"></div><div class="audio-bar"></div>
+    </div>
+    <div class="audio-controls">
+      <button class="play-btn" id="play-btn" onclick="togglePlay()">&#9654;&#65039;</button>
+    </div>
+    <div class="audio-progress-wrap" id="progress-wrap" onclick="seekAudio(event)">
+      <div class="audio-progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="audio-times">
+      <span id="cur-time">0:00</span>
+      <span id="dur-time">0:00</span>
+    </div>
+    <div class="audio-label">she actually sang this &#128557;&#128151;</div>
+  </div>
+  <audio id="sayu-audio" src="{audio_src}" preload="metadata"></audio>
+  <button class="next-btn" onclick="goTo(9)" style="margin-top:0.8rem;">last page &#127874;</button>
+</div>
+
+<!-- PAGE 9: ENDING -->
+<div class="page" id="page-ending">
+  <div class="ending-wrap">
+    <div class="ending-big">Happy Birthday &#127874;</div>
+    <div class="ending-sub">
+      this only happens once a year.<br>
+      hope u make it count.<br>
+      wear black. eat cake. be unbothered.<br>
+      that's the whole plan. &#128151;
+    </div>
+    <div class="btn-row" style="justify-content:center;margin-bottom:1rem;">
+      <button class="btn btn-primary" onclick="launchConfetti()">&#127881; one last confetti</button>
+      <button class="btn btn-primary" onclick="heartShower()">&#128151; heart shower</button>
+    </div>
+    <div class="footer">made with &#128151; &middot; for sayumi &middot; august 6th 2026</div>
+  </div>
 </div>
 
 <script>
 // ---- PAGE SYSTEM ----
 let currentPage = 0;
-const pageIds = ['page-lock','page-hero','page-countdown','page-fun','page-game','page-msg'];
+const pageIds = ['page-lock','page-hero','page-countdown','page-roasts','page-photos','page-game','page-msg','page-facts','page-audio','page-ending'];
+const totalNavPages = 8;
 
-function goTo(idx, direction) {{
+function goTo(idx) {{
   const prev = document.getElementById(pageIds[currentPage]);
   const next = document.getElementById(pageIds[idx]);
   const goingForward = idx > currentPage;
-
   prev.classList.remove('active');
   prev.classList.add(goingForward ? 'exit-up' : 'exit-down');
   setTimeout(() => {{ prev.classList.remove('exit-up','exit-down'); }}, 600);
-
+  // scroll to top for scrollable pages
+  next.scrollTop = 0;
   next.classList.add('active');
   currentPage = idx;
-
   const dots = document.querySelectorAll('.nav-dot');
   dots.forEach((d,i) => d.classList.toggle('active', i === idx - 1));
-
   if (idx > 0) document.getElementById('nav-dots').style.display = 'flex';
 }}
 
@@ -325,14 +443,8 @@ const PASSWORD = '06082012';
 let pin = '';
 function pressKey(k) {{
   if (pin.length >= 8) return;
-  pin += k;
-  updateDots();
-  if (pin.length === 8) {{
-    setTimeout(() => {{
-      if (pin === PASSWORD) {{ unlockSuccess(); }}
-      else {{ wrongPin(); }}
-    }}, 150);
-  }}
+  pin += k; updateDots();
+  if (pin.length === 8) setTimeout(() => {{ pin === PASSWORD ? unlockSuccess() : wrongPin(); }}, 150);
 }}
 function deleteKey() {{ pin = pin.slice(0,-1); updateDots(); }}
 function updateDots() {{
@@ -348,7 +460,7 @@ function wrongPin() {{
 }}
 function unlockSuccess() {{
   launchConfetti();
-  setTimeout(() => {{ goTo(1); }}, 400);
+  setTimeout(() => goTo(1), 400);
 }}
 
 // ---- FLOATING HEARTS ----
@@ -383,7 +495,7 @@ function launchConfetti() {{
       drift:(Math.random()-0.5)*2,spin:(Math.random()-0.5)*0.15,angle:Math.random()*Math.PI*2,opacity:0.85,fading:false}});
   }}
   if (!animId) animateConfetti();
-  fadeTimer = setTimeout(() => {{ pieces.forEach(p=>p.fading=true); }},4000);
+  fadeTimer = setTimeout(() => {{ pieces.forEach(p=>p.fading=true); }}, 4000);
 }}
 function animateConfetti() {{
   ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -395,17 +507,19 @@ function animateConfetti() {{
     ctx.globalAlpha=p.opacity;ctx.fillStyle=p.color;
     ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
   }});
-  if(pieces.length>0){{animId=requestAnimationFrame(animateConfetti);}}
-  else{{animId=null;ctx.clearRect(0,0,canvas.width,canvas.height);}}
+  if(pieces.length>0) animId=requestAnimationFrame(animateConfetti);
+  else {{ animId=null; ctx.clearRect(0,0,canvas.width,canvas.height); }}
 }}
-function heartShower(){{ for(let i=0;i<25;i++) setTimeout(()=>spawnHeart(false),i*80); }}
+function heartShower() {{
+  for(let i=0;i<30;i++) setTimeout(()=>spawnHeart(false), i*60);
+}}
 
 // ---- COUNTDOWN ----
 let devOffset=0,devActive=false,bdayTriggered=false;
 function devMode(){{
-  const now=new Date();const bday=getNextBirthday();
+  const now=new Date(); const bday=getNextBirthday();
   devOffset=Math.floor((bday-now)/1000)-10;
-  devActive=true;bdayTriggered=false;updateCountdown();
+  devActive=true; bdayTriggered=false; updateCountdown();
 }}
 function getNextBirthday(){{
   const now=new Date();
@@ -414,7 +528,7 @@ function getNextBirthday(){{
   return bday;
 }}
 function updateCountdown(){{
-  const now=new Date();const bday=getNextBirthday();
+  const now=new Date(); const bday=getNextBirthday();
   let diff=Math.floor((bday-now)/1000)-(devActive?devOffset:0);
   if(diff<=0){{
     document.getElementById('countdown-inner').style.display='none';
@@ -423,7 +537,7 @@ function updateCountdown(){{
     return;
   }}
   bdayTriggered=false;
-  document.getElementById('countdown-inner').style.display='block';
+  document.getElementById('countdown-inner').style.display='flex';
   document.getElementById('bday-inner').style.display='none';
   setNum('cd-days',Math.floor(diff/86400));
   setNum('cd-hours',Math.floor((diff%86400)/3600));
@@ -437,7 +551,7 @@ function setNum(id,val){{
   if(prevVals[id]!==str){{el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),150);prevVals[id]=str;}}
   el.textContent=str;
 }}
-updateCountdown();setInterval(updateCountdown,1000);
+updateCountdown(); setInterval(updateCountdown,1000);
 
 // ---- ROASTS ----
 const roasts=[
@@ -460,56 +574,76 @@ function nextRoast(){{
   }},250);
 }}
 
+// ---- PHOTO SLIDESHOW ----
+const photoSrcs = {photo_srcs_js};
+let photoIdx = 0;
+const slidesEl = document.getElementById('photo-slides');
+const dotsEl = document.getElementById('photo-dots');
+
+photoSrcs.forEach((src, i) => {{
+  const slide = document.createElement('div');
+  slide.className = 'photo-slide' + (i>0?' hidden':'');
+  if(src.startsWith('__placeholder_')){{
+    const emoji = src.replace('__placeholder_','').replace('__','');
+    slide.innerHTML = '<div class="ph">'+emoji+'</div>';
+  }} else {{
+    slide.innerHTML = '<img src="'+src+'" alt="pic">';
+  }}
+  slidesEl.appendChild(slide);
+
+  const dot = document.createElement('div');
+  dot.className = 'photo-dot'+(i===0?' active':'');
+  dotsEl.appendChild(dot);
+}});
+
+function nextPhoto(){{
+  const slides = slidesEl.querySelectorAll('.photo-slide');
+  const dots = dotsEl.querySelectorAll('.photo-dot');
+  slides[photoIdx].classList.add('hidden');
+  dots[photoIdx].classList.remove('active');
+  photoIdx = (photoIdx+1)%slides.length;
+  slides[photoIdx].classList.remove('hidden');
+  dots[photoIdx].classList.add('active');
+}}
+
 // ---- GAME ----
 const questions=[
-  {{q:'are you the best bsf in the world? &#129402;',win:'obviously YES!! &#128151; correct answer lol'}},
-  {{q:'do u think ur funny? &#128557;',win:'she said yes &#128557;&#128151; ur actually so funny ugh'}},
-  {{q:'do i deserve a slap rn? &#129767;',win:'she said yes &#128128; fair enough honestly'}},
-  {{q:'are u having the best bday ever? &#127874;',win:'she said yes!! &#128151; good. as it should be &#127874;'}},
-  {{q:'am i the best bsf ever? &#128517;',win:'she said yes!! &#128151; correct. i accept this.'}},
+  {{q:'ur old now aren\'t u? &#128514;', yesLabel:'yes &#128557;', noLabel:'no', win:'SHE ADMITTED IT &#128514;&#128151; welcome to old age'}},
+  {{q:'should i get slapped rn? &#129767;', yesLabel:'yes obviously', noLabel:'no', win:'she said yes &#128128; i accept my fate'}},
+  {{q:'ur da best bsf right? &#129402;', yesLabel:'yes ofc &#128151;', noLabel:'no', win:'correct!! &#128151; tht was the only right answer'}},
+  {{q:'will u be more active this year? &#128247;', yesLabel:'yes i will &#128151;', noLabel:'no', win:'she promised!! &#128151; i\'m holding u to tht'}},
+  {{q:'will u enjoy ur bday? &#127874;', yesLabel:'absolutely &#127874;', noLabel:'no', win:'good!! &#127874;&#128151; as it should be!'}},
 ];
 let qIdx=0,noEscapes=0,gameWon=false;
-let noX=50,noY=50,noVX=0,noVY=0;
 const noBtn=document.getElementById('no-btn');
+const yesBtn=document.getElementById('yes-btn');
 const arena=document.getElementById('game-arena');
 
-// init no button position
-setTimeout(()=>{{
-  const r=arena.getBoundingClientRect();
-  noX=r.width*0.65;
-  noY=r.height*0.5;
-  noBtn.style.left=noX+'px';
-  noBtn.style.top=noY+'px';
-  noBtn.style.transform='translate(-50%,-50%)';
-}},100);
+function updateGameQuestion(){{
+  document.getElementById('game-question').innerHTML=questions[qIdx].q;
+  yesBtn.innerHTML=questions[qIdx].yesLabel;
+  noBtn.textContent=questions[qIdx].noLabel;
+  noEscapes=0;
+  noBtn.style.fontSize='0.82rem';
+  noBtn.style.left='70%';
+  noBtn.style.top='50%';
+}}
 
 function runAway(){{
   if(gameWon) return;
   noEscapes++;
-  const size=Math.max(0.6,0.82-noEscapes*0.03);
+  const size=Math.max(0.55,0.82-noEscapes*0.04);
   noBtn.style.fontSize=size+'rem';
-  noBtn.style.transition='left 0.35s ease,top 0.35s ease';
-
-  const arenaRect=arena.getBoundingClientRect();
-  const btnW=noBtn.offsetWidth;
-  const btnH=noBtn.offsetHeight;
-  const maxX=arenaRect.width-btnW/2;
-  const maxY=arenaRect.height-btnH/2;
-  const minX=btnW/2;
-  const minY=btnH/2;
-
-  // move away from yes button (center-left area)
-  let attempts=0,nx,ny;
-  do{{
-    nx=minX+Math.random()*(maxX-minX);
-    ny=minY+Math.random()*(maxY-minY);
-    attempts++;
-  }}while(attempts<15&&nx<arenaRect.width*0.5);
-
-  noX=nx;noY=ny;
-  noBtn.style.left=noX+'px';
-  noBtn.style.top=noY+'px';
-
+  noBtn.style.transition='left 0.4s cubic-bezier(.25,.46,.45,.94),top 0.4s cubic-bezier(.25,.46,.45,.94)';
+  const aw=arena.offsetWidth, ah=arena.offsetHeight;
+  const bw=noBtn.offsetWidth, bh=noBtn.offsetHeight;
+  // keep well inside bounds
+  const nx=bw/2+Math.random()*(aw-bw)*0.9+aw*0.0;
+  const ny=bh/2+Math.random()*(ah-bh)*0.9;
+  // avoid yes button area (left 40%)
+  const finalX = nx < aw*0.4 ? aw*0.55+Math.random()*aw*0.35 : nx;
+  noBtn.style.left=Math.min(finalX,aw-bw/2)+'px';
+  noBtn.style.top=Math.max(bh/2,Math.min(ny,ah-bh/2))+'px';
   if(noEscapes>=5) noBtn.textContent='noooo 😭';
   else if(noEscapes>=3) noBtn.textContent='no... 🫣';
 }}
@@ -517,27 +651,74 @@ function runAway(){{
 function yesClicked(){{
   if(gameWon) return;
   gameWon=true;
-  document.getElementById('yes-btn').style.display='none';
-  noBtn.style.display='none';
+  yesBtn.style.display='none'; noBtn.style.display='none';
   const result=document.getElementById('game-result');
   result.style.display='block';
   result.innerHTML=questions[qIdx].win;
   heartShower();
   setTimeout(()=>{{
     qIdx=(qIdx+1)%questions.length;
-    gameWon=false;noEscapes=0;
-    noBtn.textContent='no';noBtn.style.fontSize='0.82rem';
-    document.getElementById('game-question').innerHTML=questions[qIdx].q;
-    document.getElementById('game-sub').style.display='block';
-    document.getElementById('yes-btn').style.display='block';
-    noBtn.style.display='block';
+    gameWon=false;
+    yesBtn.style.display='block'; noBtn.style.display='block';
     result.style.display='none';
-    const r=arena.getBoundingClientRect();
-    noX=r.width*0.65;noY=r.height*0.5;
-    noBtn.style.transition='none';
-    noBtn.style.left=noX+'px';noBtn.style.top=noY+'px';
-    setTimeout(()=>{{noBtn.style.transition='left 0.35s ease,top 0.35s ease';}},50);
+    updateGameQuestion();
   }},2500);
+}}
+
+// ---- AUDIO PLAYER ----
+const audio = document.getElementById('sayu-audio');
+const playBtn = document.getElementById('play-btn');
+const progressFill = document.getElementById('progress-fill');
+const curTime = document.getElementById('cur-time');
+const durTime = document.getElementById('dur-time');
+const bars = document.querySelectorAll('.audio-bar');
+let isPlaying = false;
+
+function togglePlay() {{
+  if (!audio.src || audio.src === window.location.href) return;
+  if (isPlaying) {{
+    audio.pause();
+    isPlaying = false;
+    playBtn.innerHTML = '&#9654;&#65039;';
+    bars.forEach(b => b.classList.remove('active'));
+  }} else {{
+    audio.play();
+    isPlaying = true;
+    playBtn.innerHTML = '&#9646;&#9646;';
+    bars.forEach(b => b.classList.add('active'));
+  }}
+}}
+
+function fmtTime(s) {{
+  const m = Math.floor(s/60);
+  const sec = Math.floor(s%60);
+  return m+':'+(sec<10?'0':'')+sec;
+}}
+
+audio.addEventListener('timeupdate', () => {{
+  if (audio.duration) {{
+    progressFill.style.width = (audio.currentTime/audio.duration*100)+'%';
+    curTime.textContent = fmtTime(audio.currentTime);
+  }}
+}});
+
+audio.addEventListener('loadedmetadata', () => {{
+  durTime.textContent = fmtTime(audio.duration);
+}});
+
+audio.addEventListener('ended', () => {{
+  isPlaying = false;
+  playBtn.innerHTML = '&#9654;&#65039;';
+  bars.forEach(b => b.classList.remove('active'));
+  progressFill.style.width = '0%';
+  curTime.textContent = '0:00';
+}});
+
+function seekAudio(e) {{
+  if (!audio.duration) return;
+  const rect = document.getElementById('progress-wrap').getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  audio.currentTime = pct * audio.duration;
 }}
 </script>
 </body>
