@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 import base64
 
@@ -96,10 +97,25 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
 #tap-overlay{{
   position:fixed;top:0;left:0;width:100%;height:100%;
   z-index:9000;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  background:transparent;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1a0f2e 0%,#2d1b4e 50%,#1a1035 100%);
+  gap:1rem;
 }}
 #tap-overlay.gone{{display:none;}}
+.tap-emoji{{font-size:3rem;animation:float 2s ease-in-out infinite;}}
+.tap-text{{font-family:'Playfair Display',serif;font-size:1.4rem;color:#f0abca;text-align:center;}}
+.tap-sub{{font-size:0.75rem;color:#9d8fc0;letter-spacing:2px;text-transform:uppercase;text-align:center;}}
+.tap-pulse{{
+  width:60px;height:60px;border-radius:50%;
+  border:2px solid #a78bfa;
+  animation:tapPulse 1.5s ease-in-out infinite;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;
+}}
+@keyframes tapPulse{{
+  0%,100%{{transform:scale(1);box-shadow:0 0 0 0 rgba(167,139,250,0.4);}}
+  50%{{transform:scale(1.08);box-shadow:0 0 0 12px rgba(167,139,250,0);}}
+}}
 .lock-title{{font-family:'Playfair Display',serif;font-size:1.6rem;color:#f0abca;margin-bottom:0.3rem;text-align:center;}}
 .lock-sub{{font-size:0.75rem;color:#9d8fc0;letter-spacing:2px;text-transform:uppercase;margin-bottom:1.5rem;text-align:center;}}
 .pin-display{{display:flex;gap:12px;margin-bottom:1.5rem;justify-content:center;}}
@@ -241,7 +257,11 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
 </div>
 
 <!-- TAP OVERLAY -->
-<div id="tap-overlay" onclick="activatePage()">
+<div id="tap-overlay">
+  <div class="tap-emoji">&#127383;</div>
+  <div class="tap-text">tap anywhere to open</div>
+  <div class="tap-sub">something special is waiting</div>
+  <div class="tap-pulse">&#10024;</div>
 </div>
 
 <!-- PAGE 0: LOCK -->
@@ -429,17 +449,17 @@ body{{font-family:'DM Sans',sans-serif;overflow:hidden;width:100vw;height:100vh;
 
 <script>
 // ---- FOCUS FIX ----
-function activatePage() {{
-  document.getElementById('tap-overlay').classList.add('gone');
-  document.body.focus();
-}}
-// try auto-focus on load
-window.addEventListener('load', () => {{
-  try {{ window.focus(); document.body.click(); }} catch(e) {{}}
-  // if user interacts, remove overlay
-  document.addEventListener('pointerdown', () => {{
-    document.getElementById('tap-overlay').classList.add('gone');
-  }}, {{once: true}});
+// Streamlit wraps in iframe - we need a real user gesture to unlock it.
+// We show a full-screen invisible button as the very first thing.
+// Once clicked, it removes itself and the keypad works fine.
+document.addEventListener('DOMContentLoaded', () => {{
+  const overlay = document.getElementById('tap-overlay');
+  if (overlay) {{
+    overlay.addEventListener('click', () => {{
+      overlay.classList.add('gone');
+      document.body.focus();
+    }}, {{once: true}});
+  }}
 }});
 
 // ---- PAGE SYSTEM ----
@@ -749,4 +769,4 @@ function seekAudio(e) {{
 </body>
 </html>"""
 
-st.markdown(html, unsafe_allow_html=True)
+components.html(html, height=750, scrolling=False)
